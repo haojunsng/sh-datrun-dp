@@ -196,3 +196,6 @@ cython_debug/
 # Secrets
 secrets/
 .envrc
+
+# Local Exports
+local_exports/
