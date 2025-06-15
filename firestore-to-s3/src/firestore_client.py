@@ -73,8 +73,12 @@ class FirestoreExporter:
                 "_export_window": {
                     "start_ts": start_timestamp,
                     "end_ts": end_timestamp,
-                    "start_date": start_timestamp.strftime("%Y%m%d"),
-                    "end_date": end_timestamp.strftime("%Y%m%d"),
+                    "start_date": datetime.fromtimestamp(
+                        start_timestamp / 1000
+                    ).strftime("%Y%m%d"),
+                    "end_date": datetime.fromtimestamp(
+                        end_timestamp / 1000
+                    ).strftime("%Y%m%d"),
                 },
             }
             for doc in query_ref.stream()
