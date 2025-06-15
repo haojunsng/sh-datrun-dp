@@ -1,7 +1,7 @@
 import datetime
 
-from src.firestore_client import FirestoreExporter
-from src.s3_client import S3Uploader
+from firestore_client import FirestoreExporter
+from s3_client import S3Uploader
 
 
 def lambda_handler(event, context):

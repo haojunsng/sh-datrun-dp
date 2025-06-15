@@ -5,8 +5,9 @@ from typing import Dict, List
 
 import pytz
 from firebase_admin import credentials, firestore, initialize_app
-from src.settings import AWS_REGION
-from src.utils import _load_from_ssm
+from google.cloud.firestore_v1.base_query import FieldFilter
+from settings import AWS_REGION
+from utils import _load_from_ssm
 
 
 class FirestoreExporter:
@@ -61,9 +62,9 @@ class FirestoreExporter:
         end_timestamp = int(right_limit.timestamp() * 1000)
 
         collection_ref = self.db.collection(collection_name)
-        query = collection_ref.where(
-            "metadata.createdAt", ">=", start_timestamp
-        ).where("metadata.createdAt", "<", end_timestamp)
+        query_ref = collection_ref.where(
+            filter=FieldFilter("metadata.createdAt", ">=", start_timestamp)
+        ).where(filter=FieldFilter("metadata.createdAt", "<", end_timestamp))
 
         return [
             {
@@ -76,5 +77,8 @@ class FirestoreExporter:
                     "end_date": end_timestamp.strftime("%Y%m%d"),
                 },
             }
-            for doc in query.stream()
+            for doc in query_ref.stream()
         ]
+
+
+FirestoreExporter().export_collection("users", "20250610")

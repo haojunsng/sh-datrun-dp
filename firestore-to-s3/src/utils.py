@@ -2,7 +2,7 @@ import json
 from typing import Dict
 
 import boto3
-from src.settings import AWS_REGION
+from settings import AWS_REGION
 
 
 def _load_from_ssm(self, param_name: str, region: str) -> Dict:
