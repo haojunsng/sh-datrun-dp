@@ -79,6 +79,3 @@ class FirestoreExporter:
             }
             for doc in query_ref.stream()
         ]
-
-
-FirestoreExporter().export_collection("users", "20250610")
