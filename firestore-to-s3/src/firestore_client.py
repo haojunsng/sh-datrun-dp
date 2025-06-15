@@ -1,7 +1,9 @@
 import json
 import os
+from datetime import datetime, timedelta
 from typing import Dict, List
 
+import pytz
 from firebase_admin import credentials, firestore, initialize_app
 from src.settings import AWS_REGION
 from src.utils import _load_from_ssm
@@ -34,7 +36,45 @@ class FirestoreExporter:
         with open(path, "r") as f:
             return json.load(f)
 
-    def export_collection(self, collection_name: str) -> List[Dict]:
+    def export_collection(
+        self, collection_name: str, date_of_execution: str, days_back: int = 1
+    ) -> List[Dict]:
+
+        try:
+            execution_date = datetime.strptime(
+                date_of_execution, "%Y%m%d"
+            ).replace(
+                tzinfo=pytz.UTC, hour=0, minute=0, second=0, microsecond=0
+            )
+        except ValueError as e:
+            raise ValueError(
+                f"Invalid date format. Expected YYYYMMDD, "
+                f"received: {date_of_execution}"
+            ) from e
+
+        # Calculate the delta
+        left_limit = execution_date - timedelta(days=days_back)
+        right_limit = execution_date
+
+        # Convert to firestore timestamps
+        start_timestamp = int(left_limit.timestamp() * 1000)
+        end_timestamp = int(right_limit.timestamp() * 1000)
+
         collection_ref = self.db.collection(collection_name)
-        docs = collection_ref.stream()
-        return [{"id": doc.id, **doc.to_dict()} for doc in docs]
+        query = collection_ref.where(
+            "metadata.createdAt", ">=", start_timestamp
+        ).where("metadata.createdAt", "<", end_timestamp)
+
+        return [
+            {
+                "id": doc.id,
+                **doc.to_dict(),
+                "_export_window": {
+                    "start_ts": start_timestamp,
+                    "end_ts": end_timestamp,
+                    "start_date": start_timestamp.strftime("%Y%m%d"),
+                    "end_date": end_timestamp.strftime("%Y%m%d"),
+                },
+            }
+            for doc in query.stream()
+        ]
