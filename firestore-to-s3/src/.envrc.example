@@ -1,0 +1,2 @@
+export ENV=dev
+export FIRESTORE_CREDENTIAL_PATH=path/to/your/json/key
