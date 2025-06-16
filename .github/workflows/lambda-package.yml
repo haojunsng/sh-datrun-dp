@@ -31,7 +31,7 @@ jobs:
       working-directory: ./firestore-to-s3
       run: |
         mkdir -p lambda_package
-        poetry run pip install -t lambda_package .
+        pip install boto3 firebase-admin pytz -t lambda_package
         cp -r src/* lambda_package/
         cd lambda_package
         zip -r ../lambda_function.zip .
