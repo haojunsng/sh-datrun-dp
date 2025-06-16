@@ -30,7 +30,7 @@ jobs:
     - name: Install dependencies
       working-directory: ./firestore-to-s3
       run: |
-        poetry install --no-dev
+        poetry install --without dev
 
     - name: Create Lambda package
       working-directory: ./firestore-to-s3
